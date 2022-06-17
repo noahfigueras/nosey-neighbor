@@ -61,7 +61,7 @@ contract NOSEY_NEIGHBOR is ERC721Enumerable, Ownable {
     require(!paused, "Error: The Contract is not active at the moment");
     require(_mintAmount > 0, "Error: Mint amount has to be bigger than 0");
     require(totalSupply() + _mintAmount <= maxSupply, "Error: Sorry we are sold out");
-    require(balanceOf(msg.sender) < maxMintAmount, "Error: Maximum NFT mint amount exceeded");
+    require(balanceOf(msg.sender) + _mintAmount <= maxMintAmount, "Error: Maximum NFT mint amount exceeded");
 	_mintToken(_mintAmount);
   }
 

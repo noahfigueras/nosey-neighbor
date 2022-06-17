@@ -49,6 +49,11 @@ describe("Nosey Neigbor NFT", function() {
 		await expect(this.nosey.connect(user).mint(0)).to.be.revertedWith(error)
 	});
 
+	it("reverts on maximum mint amount when 0 balance", async function() {
+		const error = "Error: Maximum NFT mint amount exceeded";
+		await expect(this.nosey.connect(user).mint(100)).to.be.revertedWith(error)
+	});
+
 	it("reverts on maximum mint amount of 3", async function() {
 		const error = "Error: Maximum NFT mint amount exceeded";
 		await this.nosey.connect(user).mint(3);
