@@ -25,7 +25,7 @@
                                                                                                     
 // SPDX-License-Identifier: GPL-3.0
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -33,12 +33,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract NOSEY_NEIGHBOR is ERC721Enumerable, Ownable {
   using Strings for uint256;
 
+  uint256 constant maxSupply = 1500;
+  uint256 constant cost = 0.01 ether;
+
+  uint256 public maxMintAmount = 3;
+  uint256 public revealDate;
+
   string public baseURI;
   string public notRevealedURI;
   string public baseExtension = ".json";
-  uint256 public maxSupply = 2500;
-  uint256 public maxMintAmount = 3;
-  uint256 public revealDate;
+  
   bool public paused = false;
 
   constructor(
@@ -53,15 +57,16 @@ contract NOSEY_NEIGHBOR is ERC721Enumerable, Ownable {
     revealDate = _revealDate;
 
 	// Mint NFT project Reserve
-    _mintReserve();
+    _mintToken(50);
   }
 
   // NFT mint
-  function mint(uint256 _mintAmount) public {
+  function mint(uint256 _mintAmount) public payable {
     require(!paused, "Error: The Contract is not active at the moment");
     require(_mintAmount > 0, "Error: Mint amount has to be bigger than 0");
     require(totalSupply() + _mintAmount <= maxSupply, "Error: Sorry we are sold out");
     require(balanceOf(msg.sender) + _mintAmount <= maxMintAmount, "Error: Maximum NFT mint amount exceeded");
+	require(msg.value >= (cost * _mintAmount), "Error: mint price not satisfied");
 	_mintToken(_mintAmount);
   }
 
@@ -100,13 +105,6 @@ contract NOSEY_NEIGHBOR is ERC721Enumerable, Ownable {
     return bytes(currentBaseURI).length > 0
         ? string(abi.encodePacked(currentBaseURI, tokenId.toString(), baseExtension))
         : "";
-  }
-
-  // Reserve initial NFT mint
-  // @dev only executable once on constructor
-  function _mintReserve() internal {
-	uint256 reserve = 50;
-	_mintToken(reserve);
   }
 
   function _mintToken(uint256 amount) internal {
